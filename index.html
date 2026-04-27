@@ -26,15 +26,13 @@
             
             model.compile({ loss: 'meanSquaredError', optimizer: 'sgd' });
 
-            // 9 valores empezando en -6 (consigna)
-            // x: -6, -5, -4, -3, -2, -1, 0, 1, 2
-            // y: -6, -4, -2, 0, 2, 4, 6, 8, 10 (siguiendo y = 2x+6)
+            // 9 valores empezando en -6 
             const xs = tf.tensor2d([-6, -5, -4, -3, -2, -1, 0, 1, 2], [9, 1]);
             const ys = tf.tensor2d([-6, -4, -2, 0, 2, 4, 6, 8, 10], [9, 1]);
 
             await model.fit(xs, ys, { epochs: 350 });
 
-            // Aviso de que terminó (consigna)
+            // Aviso de que terminó 
             document.getElementById("mensaje").innerText = "Modelo listo para usarse";
             document.getElementById("mensaje").style.color = "green";
         }
@@ -45,7 +43,7 @@
             // Predicción simple
             const salida = model.predict(tf.tensor2d([x], [1, 1]));
             
-            // Usamos toString() que es lo más básico para mostrar el resultado
+            // Se usa toString() 
             document.getElementById("output_field").innerText = salida.toString();
         }
 
