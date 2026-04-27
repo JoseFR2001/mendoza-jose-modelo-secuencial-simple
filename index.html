@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <title>Entrenamiento y = 2x + 6</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 20px;
+      }
+      #status {
+        font-weight: bold;
+        color: blue;
+      }
+      .ready {
+        color: green !important;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Modelo Secuencial: y = 2x + 6</h2>
+
+    <div id="status">Entrenando modelo... por favor espere.</div>
+    <hr />
+
+    <div id="controls" style="display: none">
+      <p>El modelo está listo. Ingrese un valor para X:</p>
+      <input type="number" id="inputValue" placeholder="Valor de X" />
+      <button onclick="predictValue()">Predecir Y</button>
+      <h3>Resultado: <span id="output_field"></span></h3>
+    </div>
+
+    <script>
+      let model;
+
+      async function learnLinear() {
+        model = tf.sequential();
+        model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+
+        model.compile({
+          loss: "meanSquaredError",
+          optimizer: "sgd",
+        });
+
+        // 1. Datos según la consigna: y = 2x + 6
+        // Para x = [-6, -5, -4, -3, -2, -1, 0, 1, 2] (9 valores)
+        // Calculamos y: [-6, -4, -2, 0, 2, 4, 6, 8, 10]
+        const xs = tf.tensor2d([-6, -5, -4, -3, -2, -1, 0, 1, 2], [9, 1]);
+        const ys = tf.tensor2d([-6, -4, -2, 0, 2, 4, 6, 8, 10], [9, 1]);
+
+        // 2. Entrenar por 350 épocas
+        await model.fit(xs, ys, {
+          epochs: 350,
+          callbacks: {
+            onEpochEnd: (epoch, logs) => {
+              console.log(`Época ${epoch}: Pérdida = ${logs.loss}`);
+            },
+          },
+        });
+
+        // 3. Notificar que terminó
+        const status = document.getElementById("status");
+        status.innerText = "¡Entrenamiento terminado! El modelo está listo.";
+        status.className = "ready";
+
+        // Mostrar los controles para el usuario
+        document.getElementById("controls").style.display = "block";
+      }
+
+      // 4. Función para predecir el valor pedido por el usuario
+      function predictValue() {
+        const val = parseFloat(document.getElementById("inputValue").value);
+        if (isNaN(val)) return alert("Ingrese un número válido");
+
+        const prediction = model.predict(tf.tensor2d([val], [1, 1]));
+
+        // Extraemos el valor numérico del tensor para que se vea limpio
+        prediction.data().then((data) => {
+          document.getElementById("output_field").innerText =
+            data[0].toFixed(2);
+        });
+      }
+
+      // Iniciar el proceso
+      learnLinear();
+    </script>
+  </body>
+</html>
